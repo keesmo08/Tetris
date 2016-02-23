@@ -36,7 +36,7 @@ var dy = DY_DEFAULT;
 var bricks = [];
 
 var brickRowCount = 16;
-var brickColumnCount = 24;
+var brickColumnCount = 23;
 var numberOfShapes = 3; // The number of shapes
 
 var rightPressed = false;
@@ -45,16 +45,9 @@ var leftPressed = false;
 var selectShape = 0;
 var shapeBricks = []; // Stores the different pieces to make the shape
 var shapeRotate = 0;
-
 var score = 0;
-// Default Array
-for(c=0; c<brickColumnCount; c++) {
-  bricks[c] = [];
-  for(r=0; r<brickRowCount; r++) {
-      bricks[c][r] = { x: 0, y: 0, status: 0 };
-  }
-}
-getRandomShape(); // Get a random shape for the first shape
+
+startNewGame();
 
 function draw(){
   ctx.clearRect(0, 0, canvas.width, canvas.height);
@@ -62,21 +55,42 @@ function draw(){
   drawBricks(); // Print the shapes that already have been placed
   // Might need something to decide the first shape
   drawSelectedShape(x,y);
-
   checkPieces();
-
   drawScore();
-
-  // gameOver();
   y += dy; // Add to move the piece down a spot
-}
-
-function gameOver(){
-  for(r=0; r<brickRowCount; r++) {
-      
+  // Check to see if game is over. If true send message game over and startNewGame
+  if(isGameOver() == true){
+      alert("Game Over");
+      startNewGame();
   }
 }
 
+function isGameOver(){
+  for(r=0; r<brickRowCount; r++) {
+      if(bricks[brickColumnCount-1][r].status == 1){
+        return true;
+      }
+  }
+}
+
+function startNewGame(){
+  bricks = [];
+  resetPiece();
+  for(c=0; c<brickColumnCount; c++) {
+    bricks[c] = [];
+    for(r=0; r<brickRowCount; r++) {
+        bricks[c][r] = { x: 0, y: 0, status: 0 };
+    }
+  }
+  getRandomShape(); // Get a random shape for the first shape
+}
+function resetPiece(){
+  // Reset Variables for a new piece
+  shapeRotate = 0;
+  shapeBricks = [];
+  dx = DX_DEFAULT;
+  dy = DY_DEFAULT;
+}
 
 function drawScore(){
   ctx.font = "16px Arial";
@@ -142,12 +156,11 @@ function drawBlock(shapeBricks){
   ctx.fillStyle = "#0095DD";
   ctx.fill();
   ctx.closePath();
-
 }
 
 function drawBlocks(brickX, brickY){
   ctx.beginPath();
-  ctx.rect( brickX, brickY, BRICK_WIDTH, BRICK_HEIGHT);
+  ctx.rect(brickX, brickY, BRICK_WIDTH, BRICK_HEIGHT);
   ctx.fillStyle = "#0095DD";
   ctx.fill();
   ctx.closePath();
@@ -197,11 +210,8 @@ function addShapeToCanvas(){
   y = 0;
   // Change the shape
   getRandomShape();
+  resetPiece();
 
-  // Reset Variables
-  shapeBricks = [];
-  dx = DX_DEFAULT;
-  dy = DY_DEFAULT;
 }
 
 function drawBricks(){
@@ -236,15 +246,18 @@ function drawLine(x,y){
   drawBlock(shapeBricks);
 }
 function drawZ(){
-  shapeBricks[0] = { x: x, y: y};
-  shapeBricks[1] = { x: x+25, y: y};
-  shapeBricks[2] = { x: x+25, y: y+25};
-  shapeBricks[3] = { x: x+50, y: y+25};
-
-  // shapeBricks[0] = { x: x, y: y};
-  // shapeBricks[1] = { x: x, y: y + 25};
-  // shapeBricks[2] = { x: x+25, y: y+25};
-  // shapeBricks[3] = { x: x+25, y: y+50};
+  if(shapeRotate == 0){
+    shapeBricks[0] = { x: x, y: y};
+    shapeBricks[1] = { x: x+25, y: y};
+    shapeBricks[2] = { x: x+25, y: y+25};
+    shapeBricks[3] = { x: x+50, y: y+25};
+  }
+  if(shapeRotate == 1){
+    shapeBricks[0] = { x: x, y: y};
+    shapeBricks[1] = { x: x, y: y + 25};
+    shapeBricks[2] = { x: x+25, y: y+25};
+    shapeBricks[3] = { x: x+25, y: y+50};
+  }
   drawBlock(shapeBricks);
 }
 
